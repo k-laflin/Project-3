@@ -35,7 +35,7 @@ commands:
           name: Revert migrations
           when: on_fail
           command: |
-            SUCCESS=$(curl -H "token: d2a5e870-814c-418a-9cc4-7b02df617896" --request GET https://api.memstash.io/values/migration_<< parameters.id >>)
+            SUCCESS=$(curl -H "token: ${MEMSTACHE_TOKEN}" --request GET https://api.memstash.io/values/migration_<< parameters.id >>)
             if (( $SUCCESS == 1 ));
             then
               cd ~/project/backend
@@ -243,7 +243,7 @@ jobs:
           command: |
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
-              curl -H "Content-Type: text/plain" -H "token: d2a5e870-814c-418a-9cc4-7b02df617896" --request PUT --data "1" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}
+              curl -H "Content-Type: text/plain" -H "token: ${MEMSTACHE_TOKEN}" --request PUT --data "1" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}
             fi
       - destroy-environment:
           id: "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"
@@ -266,7 +266,7 @@ jobs:
           command: |
             yum update -y
             yum install -y python3
-            yum install -y ansible
+            pip install ansible
             sudo yum install -y nodejs
       - run:
           name: Get backend url

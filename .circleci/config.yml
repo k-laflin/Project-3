@@ -302,8 +302,11 @@ jobs:
             yum update -y
             yum install -y python3
       #- run: pip3 install ansible
-      - run: yum install nodejs npm --enablerepo=epel
+      - run: curl -sL https://rpm.nodesource.com/setup_14.x | bash -
       - run: yum install -y nodejs
+      - run: |
+            node --version
+            npm --version
 #   deploy-backend:
 #     docker:
 #       # Docker image here that supports Ansible

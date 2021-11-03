@@ -302,6 +302,7 @@ jobs:
             yum update -y
             yum install -y python3
       - run: pip3 install ansible
+      - run: yum install --assumeyes epel-release
       - run: yum install -y nodejs
 #   deploy-backend:
 #     docker:

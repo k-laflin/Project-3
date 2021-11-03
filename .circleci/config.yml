@@ -205,10 +205,11 @@ jobs:
       - run: apk add --update gzip 
       - run: apk add --update curl
       - run: apk add sudo
-      - run: |
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo root/project/aws/install
+      # - run: |
+      #       curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+      #       unzip awscliv2.zip
+      #       sudo root/project/aws/install
+      - run: pip install awscli
       - run: aws --version
       - add_ssh_keys:
             fingerprints:

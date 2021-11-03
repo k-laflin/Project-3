@@ -292,24 +292,49 @@ jobs:
           id: "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"
       - destroy-environment:
           id: "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" 
-      - revert-migrations
+      - revert-migrations:
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
                     
-#   deploy-backend:
-#     docker:
-#       # Docker image here that supports Ansible
-#     steps:
-#       # Checkout code from git
-#       # Add ssh keys with fingerprint
-#       # attach workspace
-#       - run:
-#           name: Install dependencies
-#           command: |
-#             # your code here
-#       - run:
-#           name: Deploy backend
-#           command: |
-#             # your code here
-#       # Here's where you will add some code to rollback on failure  
+  deploy-backend:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - add_ssh_keys:
+            fingerprints:
+              - "3d:5c:4d:8e:b3:73:25:cc:5b:1b:d6:74:af:50:0b:d9"
+      - run: apk add --update tar 
+      - run: apk add --update gzip 
+      - run: pip install awscli
+      - attach_workspace:
+            at: ~/
+      - run:
+          name: Install dependencies
+          command: |
+            echo 'installing ansible'
+            apk add --update ansible
+            echo 'installing nodejs & npm'
+            apk add --update nodejs npm
+
+      - run:
+          name: Deploy backend
+          command: |
+            cd backend
+            npm i
+            npm run build
+            cd ..
+            # Zip the directory
+            tar -C backend -czvf artifact.tar.gz .
+            cd .circleci/ansible
+            echo "Contents  of the inventory.txt file is -------"
+            cat inventory.txt
+            ansible-playbook -i inventory.txt deploy-backend.yml
+      - destroy-environment:
+          id: "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"
+      - destroy-environment:
+          id: "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" 
+      - revert-migrations:
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
 
 #   smoke-test:
 #     docker:

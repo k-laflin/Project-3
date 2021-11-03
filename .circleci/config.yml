@@ -358,5 +358,5 @@ workflows:
           # filters:
           #   branches:
           #     only: [test-feature-branch]
-      - configure-infrastructure:
+      - configure-infrastructure
           #requires: [deploy-infrastructure]

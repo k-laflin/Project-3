@@ -1,1 +1,2 @@
-git repo: https://github.com/k-laflin/Project-3
+[URL01] git repo : https://github.com/k-laflin/Project-3
+[URL02] s3 bucket: 

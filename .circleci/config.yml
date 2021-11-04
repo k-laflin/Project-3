@@ -375,6 +375,22 @@ jobs:
       - revert-migrations:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
 
+  test:
+    docker:
+        - image: python:3.7-alpine3.11
+    steps:
+      - run:
+          name: Install dependencies
+          command: |
+            echo 'installing ansible'
+            apk add --update ansible
+            echo 'installing nodejs & npm'
+            apk add nodejs=13.8.0
+            apk add npm=6.13.6
+            node --version
+            npm --version
+
+
 #   smoke-test:
 #     docker:
 #       # Lightweight Docker image 
@@ -434,28 +450,31 @@ jobs:
             
 
 workflows:
-  default:
+  test:
     jobs:
-      - build-frontend
-      - build-backend
-      - test-frontend:
-          requires: [build-frontend]
-      - test-backend:
-          requires: [build-backend]
-      - scan-frontend:
-          requires: [build-frontend]
-      - scan-backend:
-          requires: [build-backend]
-      - deploy-infrastructure:
-          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-          # filters:
-          #   branches:
-          #     only: [test-feature-branch]
-      - configure-infrastructure:
-          requires: [deploy-infrastructure]
-      - run-migrations:
-          requires: [configure-infrastructure]
-      - deploy-frontend:
-          requires: [run-migrations]
-      - deploy-backend:
-          requires: [run-migrations]
+      - test
+  # default:
+  #   jobs:
+  #     - build-frontend
+  #     - build-backend
+  #     - test-frontend:
+  #         requires: [build-frontend]
+  #     - test-backend:
+  #         requires: [build-backend]
+  #     - scan-frontend:
+  #         requires: [build-frontend]
+  #     - scan-backend:
+  #         requires: [build-backend]
+  #     - deploy-infrastructure:
+  #         requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+  #         # filters:
+  #         #   branches:
+  #         #     only: [test-feature-branch]
+  #     - configure-infrastructure:
+  #         requires: [deploy-infrastructure]
+  #     - run-migrations:
+  #         requires: [configure-infrastructure]
+  #     - deploy-frontend:
+  #         requires: [run-migrations]
+  #     - deploy-backend:
+  #         requires: [run-migrations]

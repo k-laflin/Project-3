@@ -364,6 +364,7 @@ jobs:
             node --version
             npm --version
             echo 'test ansible -expected fail'
+            cd .circleci/ansible
             ansible-playbook -i inventory.txt deploy-backend.yml
 
 #   smoke-test:

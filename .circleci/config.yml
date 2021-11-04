@@ -428,14 +428,15 @@ jobs:
 workflows:
   test:
     jobs:
-      - deploy-infrastructure
-          # filters:
-          #   branches:
-          #     only: [test-feature-branch]
-      - configure-infrastructure:
-          requires: [deploy-infrastructure]
-      - deploy-backend:
-          requires: [configure-infrastructure]
+      - deploy-backend
+    # jobs:
+    #   - deploy-infrastructure
+    #       # filters:
+    #       #   branches:
+    #       #     only: [test-feature-branch]
+    #   - configure-infrastructure:
+    #       requires: [deploy-infrastructure]
+     
   # default:
   #   jobs:
   #     - build-frontend

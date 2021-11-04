@@ -393,7 +393,7 @@ jobs:
             echo 'installing ansible'
             apk add ansible
             echo 'installing nodejs & npm'
-            apk add nodejs=13.8.0
+            apk add nodejs=13.1.0
             apk add npm=6.13.6
             node --version
             npm --version

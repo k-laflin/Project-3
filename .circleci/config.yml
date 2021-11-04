@@ -391,7 +391,7 @@ jobs:
             apk add ansible
             echo 'installing nodejs & npm'
             apk add nodejs-current
-            #apk add npm=6.13.6
+            apk add npm
             node --version
             npm --version
 

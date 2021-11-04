@@ -11,18 +11,18 @@ commands:
           channel: project-3
           event: fail
           template: basic_fail_1
-  delete_bucket:
-    description: empties and deletes an s3 bucket
-    parameters:
-      id:
-        type: string
-        default: ${CIRCLE_WORKFLOW_ID:0:7}
-    steps:
-      - run: 
-          name: destroy bucket
-          when: on_fail
-          command: |
-            aws s3 rm s3://udapeople-<< parameters.id >> --recursive
+  # delete-bucket:
+  #   description: empties and deletes an s3 bucket
+  #   parameters:
+  #     id:
+  #       type: string
+  #       default: ${CIRCLE_WORKFLOW_ID:0:7}
+  #   steps:
+  #     - run: 
+  #         name: destroy bucket
+  #         when: on_fail
+  #         command: |
+  #           aws s3 rm s3://udapeople-<< parameters.id >> --recursive
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
@@ -34,7 +34,9 @@ commands:
           name: Destroy environments
           when: on_fail
           command: |
-            aws cloudformation delete-stack --stack-name <<parameters.id>>
+            aws s3 rm s3://udapeople-<< parameters.id >> --recursive
+            aws cloudformation delete-stack --stack-name udapeople-backend-<<parameters.id>>
+            aws cloudformation delete-stack --stack-name udapeople-frontend-<<parameters.id>>
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -202,11 +204,13 @@ jobs:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
-      -  delete_bucket
       - destroy-environment:
-          id: "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"
-      - destroy-environment:
-          id: "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}"
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
+      # -  delete-bucket
+      # - destroy-environment:
+      #     id: "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"
+      # - destroy-environment:
+      #     id: "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}"
 
   configure-infrastructure:
     docker:
@@ -231,11 +235,13 @@ jobs:
           command: |
             cd .circleci/ansible
             ansible-playbook -i inventory.txt configure-server.yml
-      -  delete_bucket
       - destroy-environment:
-          id: "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"
-      - destroy-environment:
-          id: "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}"     
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
+      # -  delete-bucket
+      # - destroy-environment:
+      #     id: "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"
+      # - destroy-environment:
+      #     id: "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}"     
 
   run-migrations:
     docker:
@@ -259,11 +265,13 @@ jobs:
             then
               curl -H "Content-Type: text/plain" -H "token: ${MEMSTACHE_TOKEN}" --request PUT --data "1" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}
             fi
-      -  delete_bucket
       - destroy-environment:
-          id: "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"
-      - destroy-environment:
-          id: "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}"    
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
+      # -  delete-bucket
+      # - destroy-environment:
+      #     id: "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"
+      # - destroy-environment:
+      #     id: "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}"    
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build  
@@ -274,6 +282,7 @@ jobs:
     steps:
       - checkout 
       - run: yum install -y tar gzip
+      - run: yum install -y curl
       - attach_workspace:
           at: ~/
       - run:
@@ -304,11 +313,13 @@ jobs:
             npm run build
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
-      -  delete_bucket
+      # -  delete-bucket
+      # - destroy-environment:
+      #     id: "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"
+      # - destroy-environment:
+      #     id: "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}"
       - destroy-environment:
-          id: "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"
-      - destroy-environment:
-          id: "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" 
+          id: ${CIRCLE_WORKFLOW_ID:0:7} 
       - revert-migrations:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
                     
@@ -322,8 +333,8 @@ jobs:
               - "3d:5c:4d:8e:b3:73:25:cc:5b:1b:d6:74:af:50:0b:d9"
       - run: apk add --update tar 
       - run: apk add --update gzip 
-      - run: pip install awscli
-      - run: apk add --update curl
+      - run: pip install awscli    #for destroy environment &  delete-bucket
+      - run: apk add --update curl #for revert migrations
       - attach_workspace:
             at: ~/
       - restore_cache:
@@ -334,13 +345,18 @@ jobs:
             echo 'installing ansible'
             apk add --update ansible
             echo 'installing nodejs & npm'
-            apk add --update nodejs npm
+            apk add nodejs=13.8.0-suffix 
+            apk add npm=6.13.6-suffix
+            node --version
+            npm --version
 
       - run:
           name: Deploy backend
           command: |
             cd backend
+            echo 'begin npm install -------'
             npm install
+            echo 'begin npm run build ------'
             npm run build
             cd ..
             # Zip the directory
@@ -349,11 +365,13 @@ jobs:
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml
-      -  delete_bucket
+      # -  delete-bucket
+      # - destroy-environment:
+      #     id: "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"
+      # - destroy-environment:
+      #     id: "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" 
       - destroy-environment:
-          id: "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"
-      - destroy-environment:
-          id: "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" 
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
 

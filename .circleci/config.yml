@@ -379,6 +379,14 @@ jobs:
     docker:
         - image: python:3.7-alpine3.11
     steps:
+      - checkout
+      - add_ssh_keys:
+            fingerprints:
+              - "3d:5c:4d:8e:b3:73:25:cc:5b:1b:d6:74:af:50:0b:d9"
+      - run: apk add --update tar 
+      - run: apk add --update gzip 
+      - run: pip install awscli    #for destroy environment &  delete-bucket
+      - run: apk add --update curl #for revert migrations
       - run:
           name: Install dependencies
           command: |

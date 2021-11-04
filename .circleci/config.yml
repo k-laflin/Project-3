@@ -383,15 +383,15 @@ jobs:
       - add_ssh_keys:
             fingerprints:
               - "3d:5c:4d:8e:b3:73:25:cc:5b:1b:d6:74:af:50:0b:d9"
-      - run: apk add --update tar 
-      - run: apk add --update gzip 
+      - run: apk add tar 
+      - run: apk add gzip 
       - run: pip install awscli    #for destroy environment &  delete-bucket
-      - run: apk add --update curl #for revert migrations
+      - run: apk add curl #for revert migrations
       - run:
           name: Install dependencies
           command: |
             echo 'installing ansible'
-            apk add --update ansible
+            apk add ansible
             echo 'installing nodejs & npm'
             apk add nodejs=13.8.0
             apk add npm=6.13.6

@@ -316,7 +316,7 @@ jobs:
           name: Install dependencies
           command: |
             echo 'installing ansible'
-            apk add --update ansible
+            apk add --update ansible openssh-client tar gzip
             echo 'installing nodejs & npm'
             apk add nodejs-current
             apk add npm
@@ -428,7 +428,14 @@ jobs:
 workflows:
   test:
     jobs:
-      - test
+      - deploy-infrastructure
+          # filters:
+          #   branches:
+          #     only: [test-feature-branch]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
+      - deploy-backend:
+          reqiures: [configure-infrastructure]
   # default:
   #   jobs:
   #     - build-frontend

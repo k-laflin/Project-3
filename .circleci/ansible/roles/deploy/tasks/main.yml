@@ -1,4 +1,9 @@
 ---
+- name: create backend directory
+  file:
+    path: /home/ubuntu/backend
+    state: directory
+
 - name: copy artifact.tar.gz into ubuntu backend
   become: yes
   copy:

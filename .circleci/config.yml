@@ -364,7 +364,9 @@ jobs:
       - run:
           name: Get backend url
           command: |
-            echo '0.0.0.0' > inventory.txt
+            echo '52.88.153.114' > inventory.txt
+            cat inventory.txt
+            cat inventory.txt | grep [1-9].[1-9]
             export BACKEND_IP=$(cat inventory.txt | grep [1-9].[1-9])
             echo $BACKEND_IP
       - run:

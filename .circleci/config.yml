@@ -359,6 +359,7 @@ jobs:
             apk add npm
             apk add tar 
             apk add gzip
+            apk add bash
       - attach_workspace:
             at: ~/
       - run:

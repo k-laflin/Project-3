@@ -1,13 +1,32 @@
 ---
-- name: Extract artifact.tar.gz into ~/
+- name: copy artifact.tar.gz into ubuntu backend
   become: yes
-  unarchive:
+  copy:
       src: /root/project/artifact.tar.gz
-      dest: /
-- name: start node
+      dest: /home/ubuntu/backend/artifact.tar.gz
+      force: yes
+
+- name: unzip backend
+  shell: |
+    cd /home/ubuntu/backend
+    tar xvzf artifact.tar.gz -C .
+    ls -la
+
+- name: start npm
   become: yes
   shell: |
-        cd /
+        cd /home/ubuntu/backend
         npm install
+        npm run build 
+        cat .env
         pm2 stop default
         pm2 start npm -- start
+
+- name: start pm2
+  become: yes
+  shell: |
+        cd /home/ubuntu/backend
+        pm2 stop default
+        pm2 start npm -- start
+        cd dist
+        pm2 start main.js

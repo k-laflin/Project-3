@@ -357,10 +357,10 @@ jobs:
             pip install awscli 
             apk add nodejs-current
             apk add npm
-            apk add tar 
-            apk add gzip
-      - attach_workspace:
-            at: ~/
+      #       apk add tar 
+      #       apk add gzip
+      # - attach_workspace:
+      #       at: ~/
       # - run:
       #     name: Get backend url
       #     command: |
@@ -372,7 +372,10 @@ jobs:
       - run:
           name: Backend smoke test.
           command: |
-            export BACKEND_IP=$(cat inventory.txt | grep [1-9].[1-9])
+            export BACKEND_IP=$(aws ec2 describe-instances \
+                    --filters "Name=tag-value,Values=udapeople*"\
+                              "Name=instance-state-name,Values=running" \
+                    --query 'Reservations[*].Instances[*].{Instance:PublicIpAddress}' --output text)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
             if curl "${API_URL}/api/status" | grep "ok"

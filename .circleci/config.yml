@@ -303,7 +303,7 @@ jobs:
               - "3d:5c:4d:8e:b3:73:25:cc:5b:1b:d6:74:af:50:0b:d9"
       - run: apk add --update tar 
       - run: apk add --update gzip 
-      - run: pip install awscli    #for destroy environment &  delete-bucket
+      - run: pip install awscli    #for destroy environment 
       - run: apk add --update curl #for revert migrations
       - attach_workspace:
             at: ~/

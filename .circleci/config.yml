@@ -196,11 +196,6 @@ jobs:
             - project/.circleci/ansible/inventory.txt
       - destroy-environment:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
-      # -  delete-bucket
-      # - destroy-environment:
-      #     id: "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"
-      # - destroy-environment:
-      #     id: "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}"
 
   configure-infrastructure:
     docker:
@@ -358,18 +353,6 @@ jobs:
             pip install awscli 
             apk add nodejs-current
             apk add npm
-      #       apk add tar 
-      #       apk add gzip
-      # - attach_workspace:
-      #       at: ~/
-      # - run:
-      #     name: Get backend url
-      #     command: |
-      #       echo '52.88.153.114' > inventory.txt
-      #       cat inventory.txt
-      #       cat inventory.txt | grep [1-9].[1-9]
-      #       export BACKEND_IP=$(cat inventory.txt | grep [1-9].[1-9])
-      #       echo $BACKEND_IP
       - run:
           name: Backend smoke test.
           command: |
@@ -396,25 +379,32 @@ jobs:
             else
               return 1
             fi
-      # - destroy-environment:
-      #     id: ${CIRCLE_WORKFLOW_ID:0:7}
-      # - revert-migrations:
-      #     id: ${CIRCLE_WORKFLOW_ID:0:7} 
+      - destroy-environment:
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations:
+          id: ${CIRCLE_WORKFLOW_ID:0:7} 
 
-#   cloudfront-update:
-#     docker:
-#       # Docker image here that supports AWS CLI
-#     steps:
-#       # Checkout code from git
-#       - run:
-#           name: Install dependencies
-#           command: |
-#             # your code here
-#       - run:
-#           name: Update cloudfront distribution
-#           command: |
-#             # your code here
-#       # Here's where you will add some code to rollback on failure  
+  cloudfront-update:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout 
+      - run:
+          name: Install dependencies
+          command: |
+            yum install -y curl 
+      - run:
+          name: Update cloudfront distribution
+          command: |
+            aws cloudformation deploy \
+            --template-file .circleci/files/cloudfront.yml \
+            --stack-name InitialStack \
+            --parameter-overrides WorkflowID="udapeople-${CIRCLE_WORKFLOW_ID:0:7}" \
+            --tags project=udapeople
+      - destroy-environment:
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations:
+          id: ${CIRCLE_WORKFLOW_ID:0:7} 
 
 # cleanup:
 #     docker:
@@ -468,3 +458,5 @@ workflows:
           requires: [configure-infrastructure]
       - smoke-test:
           requires: [deploy-backend, deploy-frontend]
+      - cloudfront-update:
+          requires: [smoke-test]
